@@ -10,13 +10,13 @@ module.exports = function (grunt) {
     var options = this.options({
       encoding: 'utf8',
       algorithm: 'md5',
-      length: 8
+      length: 8,
+      keepOriginalFiles: true
     });
     var target = this.target;
     var filerev = grunt.filerev || {summary: {}};
 
     eachAsync(this.files, function (el, i, next) {
-      var move = true;
       
       // If dest is furnished it should indicate a directory
       if (el.dest) {
@@ -24,7 +24,7 @@ module.exports = function (grunt) {
         if(el.orig.expand) {
           el.dest = path.dirname(el.dest);
         }
-
+        
         try {
           var stat = fs.lstatSync(el.dest);
           if (stat && !stat.isDirectory()) {
@@ -34,8 +34,6 @@ module.exports = function (grunt) {
           grunt.log.writeln('Destination dir ' + el.dest + ' does not exists for target ' + target + ': creating');
           grunt.file.mkdir(el.dest);
         }
-        // We need to copy file as we now have a dest different from the src
-        move = false;
       }
 
       el.src.forEach(function (file) {
@@ -46,15 +44,14 @@ module.exports = function (grunt) {
         var newName = [path.basename(file, ext), suffix, ext.slice(1)].join('.');
         var resultPath;
 
-        if (move) {
-          dirname = path.dirname(file);
-          resultPath = path.resolve(dirname, newName);
-          fs.renameSync(file, resultPath);
-        } else {
-          dirname = el.dest;
-          resultPath = path.resolve(dirname, newName);
+        dirname = el.dest ? el.dest : path.dirname(file);
+        resultPath = path.resolve(dirname, newName);
+        
+        // If dest is furnished, we will copy instead of move. Unless keepOriginalFiles is forced to false 
+        if(el.dest && options.keepOriginalFiles)
           grunt.file.copy(file, resultPath);
-        }
+        else
+          fs.renameSync(file, resultPath);
 
         filerev.summary[path.normalize(file)] = path.join(dirname, newName);
         grunt.log.writeln(chalk.green('✔ ') + file + chalk.gray(' changed to ') + newName);

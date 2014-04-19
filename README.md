@@ -28,7 +28,8 @@ grunt.initConfig({
     options: {
       encoding: 'utf8',
       algorithm: 'md5',
-      length: 8
+      length: 8,
+      keepOriginalFiles: true
     },
     images: {
       src: 'img/**/*.{jpg,jpeg,gif,png,webp}'
@@ -61,9 +62,17 @@ Default: `8`
 
 The number of characters of the file hash to prefix the file name with.
 
+#### options.keepOriginalFiles
+
+Type: `Boolean`  
+Default: `true`
+
+The default behavior to either rename a rev file or to copy it. 
+Only enabled in case a `dest` has been provided _(see below)_
+
 ### Destination
 
-It will overwrite the `src` files if you don't specify a `dest`:
+It will overwrite the `src` files if you don't specify a `dest` or set `keepOriginalFiles` option to false:
 
 ```js
 filerev: {
