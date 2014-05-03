@@ -48,10 +48,12 @@ module.exports = function (grunt) {
         resultPath = path.resolve(dirname, newName);
         
         // If dest is furnished, we will copy instead of move. Unless keepOriginalFiles is forced to false 
-        if(el.dest && options.keepOriginalFiles)
+        if(el.dest && options.keepOriginalFiles) {
           grunt.file.copy(file, resultPath);
-        else
+        }  
+        else {
           fs.renameSync(file, resultPath);
+        }  
 
         filerev.summary[path.normalize(file)] = path.join(dirname, newName);
         grunt.log.writeln(chalk.green('✔ ') + file + chalk.gray(' changed to ') + newName);
